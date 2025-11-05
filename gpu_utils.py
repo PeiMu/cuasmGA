@@ -172,6 +172,9 @@ def get_min_stall_count(cc, opcode, tmp_opcode):
 
 
 def get_st_window(cc):
+    if cc == (8, 9):
+        cc = (8, 6)
+    
     if cc == (7, 5):
         return 10
     elif cc == (7, 0):
