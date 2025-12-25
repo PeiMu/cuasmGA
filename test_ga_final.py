@@ -1,17 +1,17 @@
-"""
-修复版本：GA kernel 调用时不传递 num_stages 和 num_warps
+"""  
+Fix version: GA kernel is called without passing num_stages and num_warps
 """
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'python'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'CuAssembler'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'CuAssembler'))  
 
 import argparse
 import torch
 import triton
 import triton.language as tl
 import triton.testing
-from profiler_utils import KernelProfiler
+from profiler_utils import KernelProfiler  
 import numpy as np
 import pandas as pd
 import time
@@ -39,7 +39,7 @@ def create_baseline_kernel():
         row_idx = tl.program_id(0)
         row_start_ptr = input_ptr + row_idx * input_row_stride
         col_offsets = tl.arange(0, BLOCK_SIZE)
-        input_ptrs = row_start_ptr + col_offsets
+        input_ptrs = row_start_ptr + col_offsets  
         row = tl.load(input_ptrs, mask=col_offsets < n_cols, other=-float('inf'))
         row_minus_max = row - tl.max(row, axis=0)
         numerator = tl.exp(row_minus_max)
@@ -139,18 +139,18 @@ def benchmark_ga_dobench(kernel, x, load_dir, warmup=100, rep=100):
     n_rows, n_cols = x.shape
     y = torch.empty_like(x)
     
-    # GA kernel 调用时只传递数据参数，不传递 num_stages/num_warps
-    kernel[(n_rows,)](y, x, x.stride(0), y.stride(0), n_rows, n_cols, load_dir=load_dir)
+    # When GA kernel is invoked, only data parameters are passed, not num_stages/num_warps  
+    kernel[(n_rows,)](y, x, x.stride(0), y.stride(0), n_rows, n_cols, load_dir=load_dir)  
     
-    fn = lambda: kernel[(n_rows,)](y, x, x.stride(0), y.stride(0), n_rows, n_cols, load_dir=load_dir)
+    fn = lambda: kernel[(n_rows,)](y, x, x.stride(0), y.stride(0), n_rows, n_cols, load_dir=load_dir)    
     
     start = time.time()
     ms = triton.testing.do_bench(fn, warmup=warmup, rep=rep)
     return ms, time.time() - start
 
 def benchmark_ga_cupti(kernel, x, load_dir, warmup=100, rep=100):
-    """GA: CUPTI - 不传递 num_stages 和 num_warps"""
-    n_rows, n_cols = x.shape
+    """GA: CUPTI - Does not pass num_stages 和 num_warps"""          
+    n_rows, n_cols = x.shape  
     y = torch.empty_like(x)
     
     profiler = KernelProfiler()
