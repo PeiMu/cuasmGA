@@ -135,7 +135,7 @@ def benchmark_baseline_cupti(kernel, x, warmup=100, rep=100):
     return np.mean(times)/1000, np.std(times)/1000, total_time
 
 def benchmark_ga_dobench(kernel, x, load_dir, warmup=100, rep=100):
-    """GA: do_bench - 不传递 num_stages 和 num_warps"""
+    """GA: do_bench - Does not pass num_stages 和 num_warps"""  
     n_rows, n_cols = x.shape
     y = torch.empty_like(x)
     
