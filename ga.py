@@ -22,7 +22,7 @@ class GeneticAlgorithm:
     def __init__(self, kernel_section,test_correctness,test_performance):
         self.original_kernel_section = kernel_section
         self.counter = Counter(kernel_section)
-        # 查看是否有重复
+        # Check for any duplicates
         has_duplicate = any(count > 1 for count in self.counter.values())
         print(f"Existing duplicate？：{has_duplicate}")
         self.test_correctness: Callable[[Individual], bool] = test_correctness
