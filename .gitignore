@@ -1,5 +1,5 @@
 
-# CUPTI 相关忽略
+# Ignore CUPTI-related matters  
 cupti_profiler/*.so
 cupti_profiler/build/
 cupti_profiler/__pycache__/
@@ -22,5 +22,5 @@ dist/
 test_benchmark.csv
 quick_ga_comparison.py
 
-# Large data directories (optional - 你决定)
+# Large data directories (optional)  
 # data/
