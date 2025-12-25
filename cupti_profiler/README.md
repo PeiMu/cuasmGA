@@ -14,7 +14,7 @@
 ## a. Set environment variables
 ```bash
 
-# Check CUPTI path
+# Check CUPTI path  
 export CUPTI_INCLUDE=/opt/conda/envs/workflow/include
 export CUPTI_LIB=/opt/conda/envs/workflow/lib
 export LD_LIBRARY_PATH=$CUPTI_LIB:$LD_LIBRARY_PATH
@@ -32,7 +32,7 @@ cd /mnt/disk/cuasmGA/cupti_profiler
 pip install pybind11
 
 # Compile
-python setup.py build_ext --inplace
+python setup.py build_ext --inplace  
 
 # Verify
 ls -la cupti_profiler*.so
@@ -41,7 +41,7 @@ ls -la cupti_profiler*.so
 ## c. Test Installation
 ```python
 from profiler_utils import KernelProfiler
-print("√ CUPTI Profiler has been installed successfully")
+print("✓ CUPTI Profiler has been installed successfully")
 ```
 
 
@@ -60,7 +60,7 @@ profiler = KernelProfiler()
 with profiler:
     # Run your kernel
     your_kernel[grid](args)
-    torch.cuda.synchronize()
+    torch.cuda.synchronize()    
 
 # Get result
 metrics = profiler.get_metrics()
@@ -77,7 +77,7 @@ from profiler_utils import benchmark_kernel
 
 @triton.jit
 def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
-    pid = tl.program_id(axis=0)
+    pid = tl.program_id(axis=0)  
     block_start = pid * BLOCK_SIZE
     offsets = block_start + tl.arange(0, BLOCK_SIZE)
     mask = offsets < n_elements
@@ -164,7 +164,7 @@ benchmark_kernel(kernel_func, warmup=10, repeat=100)
 }
 ```
 
-## c. compare_kernels function
+## c. compare_kernels function  
 ```python
 compare_kernels(baseline_func, optimized_func, warmup=10, repeat=100)
 ```
@@ -250,7 +250,7 @@ source .venv/bin/activate
 
 source start_cuasmga.sh
 
-python -c "from profiler_utils import KernelProfiler; print('√ Ready')"
+python -c "from profiler_utils import KernelProfiler; print('✓ Ready')"      
 ```
 
 ## b. Run the complete testing process
