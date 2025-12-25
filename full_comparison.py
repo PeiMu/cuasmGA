@@ -1,13 +1,13 @@
 """
-完整的 API 对比：包含所有 shape
-"""
+Complete API comparison: including all shapes    
+"""  
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'python'))
 
 import torch
 import triton
-import triton.language as tl
+import triton.language as tl  
 import triton.testing
 from profiler_utils import KernelProfiler
 import time
@@ -21,27 +21,27 @@ def softmax_kernel(output_ptr, input_ptr,
                    BLOCK_SIZE: tl.constexpr):
     row_idx = tl.program_id(0)
     row_start_ptr = input_ptr + row_idx * input_row_stride
-    col_offsets = tl.arange(0, BLOCK_SIZE)
+    col_offsets = tl.arange(0, BLOCK_SIZE)  
     input_ptrs = row_start_ptr + col_offsets
-    row = tl.load(input_ptrs, mask=col_offsets < n_cols, other=-float('inf'))
+    row = tl.load(input_ptrs, mask=col_offsets < n_cols, other=-float('inf'))  
     row_minus_max = row - tl.max(row, axis=0)
     numerator = tl.exp(row_minus_max)
     denominator = tl.sum(numerator, axis=0)
-    softmax_output = numerator / denominator
+    softmax_output = numerator / denominator  
     output_row_start_ptr = output_ptr + row_idx * output_row_stride
     output_ptrs = output_row_start_ptr + col_offsets
     tl.store(output_ptrs, softmax_output, mask=col_offsets < n_cols)
 
 def test_do_bench(m, n, warmup=100, rep=100):
-    """do_bench 测试"""
-    kernel_obj = softmax_kernel
+    """do_bench testing"""  
+    kernel_obj = softmax_kernel  
     x = torch.randn(m, n, device='cuda', dtype=torch.float32)
     y = torch.empty_like(x)
     BLOCK_SIZE = triton.next_power_of_2(n)
     
-    # 预编译
-    kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,
-                     BLOCK_SIZE=BLOCK_SIZE, num_stages=4, num_warps=8)
+    # Precompile  
+    kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,    
+                     BLOCK_SIZE=BLOCK_SIZE, num_stages=4, num_warps=8)  
     
     fn = lambda: kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,
                                   BLOCK_SIZE=BLOCK_SIZE, num_stages=4, num_warps=8)
@@ -53,14 +53,14 @@ def test_do_bench(m, n, warmup=100, rep=100):
     return {'avg_time_ms': ms, 'total_time_s': elapsed}
 
 def test_cupti(m, n, warmup=100, rep=100):
-    """CUPTI 测试"""
+    """CUPTI testing"""
     kernel_obj = softmax_kernel
     x = torch.randn(m, n, device='cuda', dtype=torch.float32)
     y = torch.empty_like(x)
     BLOCK_SIZE = triton.next_power_of_2(n)
     
-    # 预编译
-    kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,
+    # Precompile  
+    kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,    
                      BLOCK_SIZE=BLOCK_SIZE, num_stages=4, num_warps=8)
     
     profiler = KernelProfiler()
@@ -73,7 +73,7 @@ def test_cupti(m, n, warmup=100, rep=100):
     
     # Benchmark
     start = time.time()
-    with profiler:
+    with profiler:  
         for _ in range(rep):
             kernel_obj[(m,)](y, x, x.stride(0), y.stride(0), m, n,
                             BLOCK_SIZE=BLOCK_SIZE, num_stages=4, num_warps=8)
@@ -83,8 +83,8 @@ def test_cupti(m, n, warmup=100, rep=100):
     metrics = profiler.get_metrics()
     times = [k['duration_us'] for k in metrics['kernels']]
     
-    # 移除异常值
-    if len(times) > 10:
+    # Remove outliers
+    if len(times) > 10:  
         q1, q3 = np.percentile(times, [25, 75])
         iqr = q3 - q1
         lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
@@ -102,7 +102,7 @@ def main():
     print("Complete API Comparison: CUPTI vs do_bench")
     print("=" * 80)
     
-    shapes = [4, 8, 16, 32, 512, 1024, 2048, 4096, 5120, 10240]
+    shapes = [4, 8, 16, 32, 512, 1024, 2048, 4096, 5120, 10240]  
     m = 1024
     warmup = 100
     rep = 100
@@ -138,7 +138,7 @@ def main():
     df = pd.DataFrame(results)
     df.to_csv('full_api_comparison.csv', index=False)
     
-    # 统计分析
+    # Statistic analysis  
     cupti_df = df[df['method'] == 'CUPTI']
     print("\n=== CUPTI Statistics ===")
     print(f"Average Std Dev: {cupti_df['std_time_ms'].mean():.6f} ms")
