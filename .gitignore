@@ -1,0 +1,26 @@
+
+# CUPTI 相关忽略
+cupti_profiler/*.so
+cupti_profiler/build/
+cupti_profiler/__pycache__/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+
+# Temporary test data
+test_benchmark.csv
+quick_ga_comparison.py
+
+# Large data directories (optional - 你决定)
+# data/
